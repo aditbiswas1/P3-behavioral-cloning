@@ -29,6 +29,10 @@ prev_image_array = None
 steering_angle_ls = None
 mean = 88.243
 std = 61.9796
+
+def crop_image(image, top=0, bottom=135):
+    return image[top:bottom]
+
 @sio.on('telemetry')
 def telemetry(sid, data):
     # The current steering angle of the car
@@ -45,7 +49,7 @@ def telemetry(sid, data):
     # preprocessing
     # resized = np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(32,16)), axis=0)
     # resized = np.expand_dims(cv2.resize(image_array, (64,32)), axis=0)
-    resized = np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(64,32)), axis=0)
+    resized = np.expand_dims(cv2.resize(crop_image(image_array), (200,66)), axis=0)
     #resized = np.expand_dims(np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(32,16))[:,:,0],axis=-1), axis=0)
     
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
