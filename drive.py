@@ -30,9 +30,12 @@ steering_angle_ls = None
 mean = 88.243
 std = 61.9796
 
-def crop_image(image, top=0, bottom=135):
+
+def crop_image(image, top=60, bottom=135):
     return image[top:bottom]
 
+def preprocess(image):
+    return cv2.resize(crop_image(image),(224, 49), interpolation= cv2.INTER_AREA)
 @sio.on('telemetry')
 def telemetry(sid, data):
     # The current steering angle of the car
@@ -49,29 +52,30 @@ def telemetry(sid, data):
     # preprocessing
     # resized = np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(32,16)), axis=0)
     # resized = np.expand_dims(cv2.resize(image_array, (64,32)), axis=0)
-    resized = np.expand_dims(cv2.resize(crop_image(image_array), (200,66)), axis=0)
+    resized = np.expand_dims(preprocess(image_array), axis=0)
     #resized = np.expand_dims(np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(32,16))[:,:,0],axis=-1), axis=0)
     
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(resized, batch_size=1))
-    # The driving model currently just outputs a constant throttle. Feel free to edit this.
+    #The driving model currently just outputs a constant throttle. Feel free to edit this.
     # Adaptive throttle - Both Track
-    # if (abs(float(speed)) < 10):
-    #     throttle = 0.5
-    # else:
-    #     # When speed is below 20 then increase throttle by speed_factor
-    #     if (abs(float(speed)) < 25):
-    #         speed_factor = 1.35
-    #     else:
-    #         speed_factor = 1.0
-    #     if (abs(steering_angle) < 0.1): 
-    #         throttle = 0.3 * speed_factor
-    #     elif (abs(steering_angle) < 0.5):
-    #         throttle = 0.2 * speed_factor
-    #     else:
-    #         throttle = 0.15 * speed_factor
-
-    throttle = 0.3
+    if (abs(float(speed)) < 10):
+        throttle = 0.5
+    elif(abs(float(speed)) > 15):
+        throttle = -0.3
+    else:
+        # When speed is below 20 then increase throttle by speed_factor
+        if (abs(float(speed)) < 15):
+            speed_factor = 1.35
+        else:
+            speed_factor = 1.0
+        if (abs(steering_angle) < 0.1): 
+            throttle = 0.3 * speed_factor
+        elif (abs(steering_angle) < 0.5):
+            throttle = 0.2 * speed_factor
+        else:
+            throttle = 0.15 * speed_factor
+    # throttle = 0.2
     print(steering_angle, throttle)
     send_control(steering_angle, throttle)
 
