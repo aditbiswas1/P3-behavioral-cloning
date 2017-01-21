@@ -28,7 +28,7 @@ The general process that was followed was:
 I carried out various experiments using starting from the architecture presented on the nvidia paper , a le-net based architecture as well using a pretrained VGG16 model as a feature extractor. After a couple of iterations the final model which i decided to use for the project was as follows:
 
 | Layer (type)               |      Output Shape    |
-|-----------------------------:----------------------|
+|-----------------------------|----------------------|
 | Convolution2D | (None, 49, 224, 3)|
 | MaxPooling2D | (None, 24, 112, 3 |
 | Convolution2D | (None, 24, 112, 32) |
