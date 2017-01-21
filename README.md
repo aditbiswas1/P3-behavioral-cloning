@@ -16,12 +16,18 @@ To train the model i used the training dataset provided by Udacity, which is a c
 The complete process of dataset exploration and data augmentation can be evaluated by running the Model_Training.ipynb notebook.
 
 The general process that was followed was:
+
 1. **Crop images:** I cropped the images 60 pixels from top until 135 pixels. I found that the top 60 pixels of the iamge are scenary information such as skies, trees etc. and the bottom 25 pixels contained the car hud. By removing the top pixels, I could create a simpler model which doesnt learn scenic features of the dataset and by removing the bottom pixels I could reuse the left / right camera images as fake center camera images to simulate recovery scenarios.
-2. **Resize image: ** I took the cropped images to 224x49 and resized them using the resize function available on opencv, this was done so that i could train a simpler model while preserving information.
-3. **Reuse Left / Right Camera images: ** Since the left and right cameras were always at a constant angle from the car's hud I could reuse it to simulate recovery scenarios such as when the car drives near the edge of the road. For left camera image we want the car to turn right and return to center and vice versa for the right camera, thus i augmented the steering angles for the car by argmin(1, angle + 0.3) for left camera images and argmax(-1, angle -0.3) for the right camera images
-4. **Brightness Augmentation: ** Since the simulation track had a constant sunlight, it was possible that the driving agent only learns color specific features in the specific light conditions, to account for this I added a random variation in brightness of the images by manipulating the V channel after converting the images to HSV color space.
+
+2. **Resize image:** I took the cropped images to 224x49 and resized them using the resize function available on opencv, this was done so that i could train a simpler model while preserving information.
+
+3. **Reuse Left / Right Camera images:** Since the left and right cameras were always at a constant angle from the car's hud I could reuse it to simulate recovery scenarios such as when the car drives near the edge of the road. For left camera image we want the car to turn right and return to center and vice versa for the right camera, thus i augmented the steering angles for the car by argmin(1, angle + 0.3) for left camera images and argmax(-1, angle -0.3) for the right camera images
+
+4. **Brightness Augmentation:** Since the simulation track had a constant sunlight, it was possible that the driving agent only learns color specific features in the specific light conditions, to account for this I added a random variation in brightness of the images by manipulating the V channel after converting the images to HSV color space.
+
 5. **Horizontal Flipping** The training track had a larger number of left turns than right turns, this could make the agent biased towards taking better left turns, to account for this I augmented the entire dataset by horizontally flipping the images and inversing the corresponding steering angles.
-6. ** Normalization and Centering ** To make the gradient descent algorithm converge to stable weights I normalized and centered the entire dataset by substracting the Mean of the RGB image stage and dividing by the standard deviation. This was done in the input layer of the model, so that the function could be used in the final model during evaluation.
+
+6. **Normalization and Centering** To make the gradient descent algorithm converge to stable weights I normalized and centered the entire dataset by substracting the Mean of the RGB image stage and dividing by the standard deviation. This was done in the input layer of the model, so that the function could be used in the final model during evaluation.
 
 
 ### model architecture design
