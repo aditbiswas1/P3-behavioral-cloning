@@ -19,7 +19,7 @@ To train the model i used the training dataset provided by Udacity, which is a c
 > Simulator [MacOS](https://d17h27t6h515a5.cloudfront.net/topher/2016/November/5831f290_simulator-macos/simulator-macos.zip) [Windows](https://d17h27t6h515a5.cloudfront.net/topher/2016/November/5831f3a4_simulator-windows-64/simulator-windows-64.zip) [Linux](https://d17h27t6h515a5.cloudfront.net/topher/2016/November/5831f0f7_simulator-linux/simulator-linux.zip)
 
 ### data exploration and augmentation
-The complete process of dataset exploration and data augmentation can be evaluated by running the Model_Training.ipynb notebook.
+The complete process of dataset exploration and data augmentation can be evaluated by running the [Model_Training.ipynb](https://github.com/aditbiswas1/P3-behavioral-cloning/blob/master/Model_Training.ipynb) notebook.
 
 The general process that was followed was:
 
