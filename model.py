@@ -127,21 +127,18 @@ model = Sequential([
         Dropout(0.2),
         Convolution2D(64, 3 , 3, border_mode='same', activation='relu'),
         MaxPooling2D(),
-        Dropout(0.2),
-        Convolution2D(128, 3 , 3, border_mode='same', activation='relu'),
-        MaxPooling2D(),
         Flatten(),
         Dropout(0.3),
-        Dense(256, activation='relu'),
+        Dense(512, activation='relu'),
         Dropout(0.5),
-        Dense(10, activation='tanh'),
+        Dense(20, activation='tanh'),
         Dropout(0.2),
         Dense(1),
     ])
 model.compile(optimizer=Adam(), loss='mse')
 print(model.summary())
 
-model.fit_generator(train_gen, X_train.shape[0], nb_epoch=30, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
+model.fit_generator(train_gen, X_train.shape[0], nb_epoch=15, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
