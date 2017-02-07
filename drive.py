@@ -50,32 +50,22 @@ def telemetry(sid, data):
     image_array = np.asarray(image)
     
     # preprocessing
-    # resized = np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(32,16)), axis=0)
-    # resized = np.expand_dims(cv2.resize(image_array, (64,32)), axis=0)
     resized = np.expand_dims(preprocess(image_array), axis=0)
-    #resized = np.expand_dims(np.expand_dims(cv2.resize(cv2.cvtColor(image_array, cv2.COLOR_RGB2YUV),(32,16))[:,:,0],axis=-1), axis=0)
     
     # This model currently assumes that the features of the model are just the images. Feel free to change this.
     steering_angle = float(model.predict(resized, batch_size=1))
-    #The driving model currently just outputs a constant throttle. Feel free to edit this.
-    # Adaptive throttle - Both Track
-    if (abs(float(speed)) < 10):
+    
+    # Adaptive throttle
+    # make sure the model accelerates to a controlled speed of 27, slows down on sharp turns
+    if (abs(float(speed)) < 22):
         throttle = 0.5
-    elif(abs(float(speed)) > 15):
-        throttle = -0.3
     else:
-        # When speed is below 20 then increase throttle by speed_factor
-        if (abs(float(speed)) < 15):
-            speed_factor = 1.35
-        else:
-            speed_factor = 1.0
         if (abs(steering_angle) < 0.1): 
-            throttle = 0.3 * speed_factor
+            throttle = 0.3
         elif (abs(steering_angle) < 0.5):
-            throttle = 0.2 * speed_factor
+            throttle = -0.1
         else:
-            throttle = 0.15 * speed_factor
-    # throttle = 0.2
+            throttle = -0.3
     print(steering_angle, throttle)
     send_control(steering_angle, throttle)
 
