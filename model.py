@@ -58,10 +58,10 @@ def random_bright_augment(image, angle):
 
 def random_select_left_right_center(image_row, angle):
     data_directory = 'data/'
-    choice = np.random.randint(4)
-    if choice == 4:
+    choice = np.random.randint(3)
+    if choice == 2:
         img_src, angle =  image_row['left'], angle + 0.22
-    elif choice == 3:
+    elif choice == 1:
         img_src, angle =  image_row['right'], angle - 0.22
     else:
         img_src, angle  =  image_row['center'], angle
@@ -115,29 +115,32 @@ valid_gen = training_image_generator(X_valid, y_valid)
 
 model = Sequential([
         Lambda(lambda x: (x/ 127.5 - 1.),input_shape=(49,224,3)),
-        Convolution2D(3, 1,1, border_mode='same', activation='elu', W_regularizer=l2(0.01)),
+        Convolution2D(3, 1,1, border_mode='same', activation='relu'),
         MaxPooling2D(),
         Dropout(0.1),
-        Convolution2D(32, 5 , 5, border_mode='same', activation='elu', W_regularizer=l2(0.01)),
+        Convolution2D(32, 5 , 5, border_mode='same', activation='relu'),
         MaxPooling2D(),
         Dropout(0.2),
-        Convolution2D(64, 5 , 5, border_mode='same', activation='elu', W_regularizer=l2(0.01)),
+        Convolution2D(64, 5 , 5, border_mode='same', activation='relu'),
         MaxPooling2D(),
         Dropout(0.2),
-        Convolution2D(64, 3 , 3, border_mode='same', activation='elu', W_regularizer=l2(0.01)),
+        Convolution2D(64, 3 , 3, border_mode='same', activation='relu'),
+        MaxPooling2D(),
+        Dropout(0.2),
+        Convolution2D(128, 3 , 3, border_mode='same', activation='relu'),
         MaxPooling2D(),
         Flatten(),
         Dropout(0.3),
-        Dense(512, activation='elu', W_regularizer=l2(0.01)),
+        Dense(256, activation='relu'),
         Dropout(0.5),
-        Dense(10, activation='elu', W_regularizer=l2(0.01)),
+        Dense(10, activation='tanh'),
         Dropout(0.2),
         Dense(1),
     ])
 model.compile(optimizer=Adam(), loss='mse')
 print(model.summary())
 
-model.fit_generator(train_gen, X_train.shape[0], nb_epoch=10, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
+model.fit_generator(train_gen, X_train.shape[0], nb_epoch=20, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
