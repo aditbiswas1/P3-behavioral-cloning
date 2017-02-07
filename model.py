@@ -32,8 +32,14 @@ data_center.rename(columns={'center': 'image'}, inplace=True)
 
 
 combined_data = pd.concat([data_center, data_left, data_right])
-# concat with a replicated to increase variations in training
-final_data = pd.concat([combined_data, combined_data.copy()])
+flipped_data = combined_data.copy()
+combined_data['flip'] = False
+flipped_data['flip'] = True
+flipped_data['steering'] = flipped_data['steering'] * -1
+
+final_data = pd.concat([combined_data, flipped_data, combined_data.copy(), flipped_data.copy()])
+
+
 def crop_image(image, top=60, bottom=135):
     return image[top:bottom]
 
@@ -54,12 +60,6 @@ def augment_brightness(image):
     return img_brightness
 
 
-def random_flip(image, angle):
-    choice = np.random.randint(2)
-    if choice == 1:
-        return image[:,:,::-1], (-1 * angle)
-    else:
-        return image, angle
 
 
 def random_bright_augment(image, angle):
@@ -72,16 +72,20 @@ def random_bright_augment(image, angle):
 
 def training_augmentation_pipeline(entry):
     data_directory = 'data/'
-    image, angle = entry
-    image = plt.imread(data_directory+image[1]['image'].strip())
+    image_flip, angle = entry
+    image = plt.imread(data_directory+image_flip[1]['image'].strip())
     angle = angle[1]['steering']
     image = resize_image(crop_image(image))
     image, angle = random_bright_augment(image, angle)
-    image, angle = random_flip(image, angle)
+    
+    flip = image_flip[1]['flip']
+    if flip:
+        image = image[:,:,::-1]
+
     return image, angle
 
 
-images = final_data[['image']]
+images = final_data[['image', 'flip']]
 angles = final_data[['steering']]
 
 
@@ -138,7 +142,7 @@ model = Sequential([
 model.compile(optimizer=Adam(), loss='mse')
 print(model.summary())
 
-model.fit_generator(train_gen, X_train.shape[0], nb_epoch=15, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
+model.fit_generator(train_gen, X_train.shape[0], nb_epoch=10, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
