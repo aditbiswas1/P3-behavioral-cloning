@@ -17,7 +17,21 @@ from keras.optimizers import Adam
 from keras import backend as K
 
 data = pd.read_csv('data/driving_log.csv')
+data_left = data.copy()[['left', 'steering']]
+data_left['steering'] = data_left['steering'] + 0.22
 
+data_right = data.copy()[['right', 'steering']]
+data_right['steering'] = data_right['steering'] - 0.22
+
+data_center = data.copy()[['center', 'steering']]
+
+data_left.rename(columns={'left': 'image'}, inplace=True)
+data_right.rename(columns={'right': 'image'}, inplace=True)
+data_center.rename(columns={'center': 'image'}, inplace=True)
+
+
+final_data = pd.concat([data_center, data_left, data_right])
+print(final_data.head())
 
 def crop_image(image, top=60, bottom=135):
     return image[top:bottom]
@@ -55,33 +69,19 @@ def random_bright_augment(image, angle):
         return image, angle
 
 
-
-def random_select_left_right_center(image_row, angle):
-    data_directory = 'data/'
-    choice = np.random.randint(3)
-    if choice == 2:
-        img_src, angle =  image_row['left'], angle + 0.22
-    elif choice == 1:
-        img_src, angle =  image_row['right'], angle - 0.22
-    else:
-        img_src, angle  =  image_row['center'], angle
-    
-    return plt.imread(data_directory+img_src.strip()), angle
-
-
 def training_augmentation_pipeline(entry):
-    image_row, angle = entry
-    image_row = image_row[1]
+    data_directory = 'data/'
+    image, angle = entry
+    image = plt.imread(data_directory+image[1]['image'].strip())
     angle = angle[1]['steering']
-    image, angle = random_select_left_right_center(image_row, angle)
     image = resize_image(crop_image(image))
     image, angle = random_bright_augment(image, angle)
     image, angle = random_flip(image, angle)
     return image, angle
 
 
-images = data[["center", "left", "right"]]
-angles = data[["steering"]]
+images = final_data[['image']]
+angles = final_data[['steering']]
 
 
 X_train, X_valid, y_train, y_valid = train_test_split(images, angles, test_size=0.1)
@@ -140,7 +140,7 @@ model = Sequential([
 model.compile(optimizer=Adam(), loss='mse')
 print(model.summary())
 
-model.fit_generator(train_gen, X_train.shape[0], nb_epoch=20, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
+model.fit_generator(train_gen, X_train.shape[0], nb_epoch=30, validation_data=valid_gen, nb_val_samples=X_valid.shape[0])
 
 model_json = model.to_json()
 with open("model.json", "w") as json_file:
