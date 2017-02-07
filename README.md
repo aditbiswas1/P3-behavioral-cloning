@@ -91,3 +91,7 @@ A demonstration of the models can be found on the links below:
 1. [test track 1 demo](https://youtu.be/M0KSysBsEJA?t=18s)
 2. [test track 2 demo](https://youtu.be/KLTsNKx9Amo)
 
+## Reflection
+
+This was an interesting project for me because we had to strongly focus on balancing the dataset appropriately to achieve the desired results. Along with this I learnt how to write optimized solutions for loading datasets in small constant batches of memory.
+
