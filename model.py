@@ -30,9 +30,10 @@ data_right.rename(columns={'right': 'image'}, inplace=True)
 data_center.rename(columns={'center': 'image'}, inplace=True)
 
 
-final_data = pd.concat([data_center, data_left, data_right])
-print(final_data.head())
 
+combined_data = pd.concat([data_center, data_left, data_right])
+# concat with a replicated to increase variations in training
+final_data = pd.concat([combined_data, combined_data.copy()])
 def crop_image(image, top=60, bottom=135):
     return image[top:bottom]
 
